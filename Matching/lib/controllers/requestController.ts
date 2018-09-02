@@ -1,4 +1,4 @@
-import mysql_connection from '../mysqlDB';
+import mysql_connection from 'models/mysqlDB';
 import { Request, Response } from 'express';
 
 export class MatchingController {
