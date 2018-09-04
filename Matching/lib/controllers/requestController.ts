@@ -30,9 +30,9 @@ export class MatchingController {
                 });
             }
             else {
-                console.log("Status 400: No campaigns with category ID " + category + " found!");
-                res.status(400).json({
-                    status: 400,
+                console.log("Status 404: No campaigns with category ID " + category + " found!");
+                res.status(404).json({
+                    status: 404,
                     message: "No campaigns with category ID " + category + " found!"
                 });
             }
