@@ -28,32 +28,29 @@ export class RankingController {
         }
         var ad_cam:Number[] = advertiser_campaigns.split(",");
         var ad_cam_bid:Number[] = advertiser_campaigns_bids.split(",");
-        if(ad_cam.length != ad_cam_bid.length){
-            console.log("The number of advertiser campaigns does not match the number of bids!");
-            res.status(404).json({
-                status: 404,
-                message: "The number of advertiser campaigns does not match the number of bids!"
-            })
-            return;
-        }
-        function swap(myArr, i, j){
-            var tmpVal = myArr[i];
-            myArr[i] = myArr[j];
-            myArr[j] = tmpVal;
-            return myArr;
-        }
-        for( var pass = 1; pass < ad_cam_bid.length; pass++ ){
-            for( var left = 0; left < (ad_cam_bid.length - pass); left++){
-              var right = left + 1;
-              if( ad_cam_bid[left] < ad_cam_bid[right]){
-                swap(ad_cam_bid, left, right);
-                swap(ad_cam, left, right);
-              }
+        
+        const obj = ad_cam.reduce((obj: any, value: any, index: number) => {
+            obj[value] = ad_cam_bid[index];
+            return obj;
+        }, {});
+
+        ad_cam.sort((a: any, b: any) => { 
+            return obj[b] - obj[a] 
+        });
+
+        var arreglo = [];
+        if(ad_cam.length < maximum){
+            for(var i=0; i<ad_cam.length; i ++){
+                arreglo[i]={ id: Number(ad_cam[i])};
+            }
+        }else{
+            for(var i=0; i<maximum; i ++){
+                arreglo[i]={ id: Number(ad_cam[i])};
             }
         }
-        console.log(JSON.stringify(ad_cam, null, 4));
+        console.log(arreglo);
         res.status(200).json({
-            results: ad_cam
+            results: arreglo
         });
         return;
     }
