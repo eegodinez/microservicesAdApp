@@ -42,10 +42,20 @@ export class PricingController {
                 return;
             } 
             if (result.length > 0){
-                console.log(JSON.stringify(result, null, 4));
+                var ad_cam:Number[] = advertiser_campaigns.split(",");
+                var ad_cam_b:Number[] = advertiser_campaigns_bids.split(",");
+                var mi = result[0];
+                var value = Object.keys(mi).map(k => mi[k]);
+                var arreglo = [];
+                for(var i=0; i<ad_cam.length; i++){
+                    arreglo[i]={ id: Number(ad_cam[i]) , price: (Number(ad_cam_b[i])* Number(value))};
+                }
+                
+                console.log(arreglo);
                 res.status(200).json({
-                    results: result
+                    results: arreglo
                 });
+
             }
             else {
                 console.log("Status 404: No pricing for publisher campaigns with ID " + publisher_campaign + " found!");

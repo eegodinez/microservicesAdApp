@@ -1,5 +1,7 @@
 import mysql_connection from '../models/mysqlDB';
 import { Request, Response } from 'express';
+import { json } from '../../node_modules/@types/body-parser';
+import { isNumber } from 'util';
 
 export class ExclusionsController {
 
@@ -34,9 +36,26 @@ export class ExclusionsController {
                 return;
             } 
             if (result.length > 0){
-                console.log(JSON.stringify(result, null, 4));
+                var ad_cam:Number[] = advertiser_campaigns.split(",");
+                var mi = result[0];
+                var value = Object.keys(mi).map(k => mi[k]);
+                for(var i=0; i<result.length; i++){
+                    mi = result[i];
+                    value = Object.keys(mi).map(k => mi[k]);
+                    for(var j=0; j<ad_cam.length; j++){
+                        if(Number(value) == Number(ad_cam[j])){
+                            ad_cam.splice(j,1);
+                        }
+                    }
+                }
+
+                var arreglo = [];
+                for(var i=0; i<ad_cam.length; i++){
+                    arreglo[i]={ id: Number(ad_cam[i])};
+                }
+                console.log(arreglo);
                 res.status(200).json({
-                    results: result
+                    results: arreglo
                 });
             }
             else {
