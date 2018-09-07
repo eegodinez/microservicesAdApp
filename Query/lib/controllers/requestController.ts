@@ -46,6 +46,7 @@ export class QueryController {
 
 
         this.getMatching(category).then(promise => {
+
             let matchingResults = promise.data.results;
             console.log(matchingResults)
             console.log("\n")
@@ -80,7 +81,7 @@ export class QueryController {
                     }
                    
                      
-                    this.getRanking(intersection, bids_filtered).then(promise => {
+                    this.getRanking(intersection, bids_filtered,maximum).then(promise => {
                         let rankingPromiseResults = promise.data.results;
                         console.log(rankingPromiseResults);
                         console.log("\n")
@@ -107,21 +108,57 @@ export class QueryController {
 
                                 })
 
+                            }).catch((error) => {
+                                console.log(error)
+                                res.status(404).json({
+                                    status:404,
+                                    message: "No ad(s) found!"
+                                })
                             })
 
+                        }).catch((error) => {
+                            console.log(error)
+                            res.status(404).json({
+                                status:404,
+                                message: "No ad(s) found!"
+                            })
                         })
 
-                    }) 
+                    }).catch((error) => {
+                        console.log(error)
+                        res.status(404).json({
+                            status:404,
+                            message: "No ad(s) found!"
+                        })
+                    })
 
                     
 
 
+                }).catch((error) => {
+                    console.log(error)
+                    res.status(404).json({
+                        status:404,
+                        message: "No ad(s) found!"
+                    })
                 })
 
+            }).catch((error) => {
+                console.log(error)
+                res.status(404).json({
+                    status:404,
+                    message: "No ad(s) found!"
+                })
             })
 
 
 
+        }).catch((error) => {
+            console.log(error)
+            res.status(404).json({
+                status:404,
+                message: "No ad(s) found!"
+            })
         });
 
         return;
@@ -159,11 +196,11 @@ export class QueryController {
         }
     }
     
-    public getRanking = async (advertiser_campaign_id, advertiser_campaign_bids) => {
+    public getRanking = async (advertiser_campaign_id, advertiser_campaign_bids,maximum) => {
         let advertiser_campaign_id_str = advertiser_campaign_id.join();
         let advertiser_campaign_bids_str = advertiser_campaign_bids.join();
         try {
-            return await axios.get(rankingURI+'?advertiser_campaigns='+advertiser_campaign_id_str+'&advertiser_campaigns_bids='+advertiser_campaign_bids_str)
+            return await axios.get(rankingURI+'?advertiser_campaigns='+advertiser_campaign_id_str+'&advertiser_campaigns_bids='+advertiser_campaign_bids_str+'&maximum='+maximum)
         }
         catch (error) {
             console.log(error);
