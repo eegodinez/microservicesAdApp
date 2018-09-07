@@ -72,20 +72,41 @@ export class QueryController {
                     console.log("intersection")
                     console.log(intersection);
                     console.log("\n")
-                    
-                    this.getRanking(intersection, this.bid).then(promise => {
+
+                    let bids_filtered = [];
+    
+                    for (let value in intersection){
+                        bids_filtered.push(matchingResults.find(mresults => mresults.id === intersection[value]).bid)
+                    }
+                   
+                     
+                    this.getRanking(intersection, bids_filtered).then(promise => {
                         let rankingPromiseResults = promise.data.results;
                         console.log(rankingPromiseResults);
                         console.log("\n")
 
                         this.getAds(intersection).then(promise => {
                             let adsPromiseResults = promise.data.results;
+                            for (let value in adsPromiseResults){
+                                Object.assign(adsPromiseResults[value], {impression_id: Math.floor((Math.random() * 10000000) + 1)});
+                            }
+                            
                             console.log(adsPromiseResults);
                             console.log("\n");
 
-                            this.getPricing(intersection, this.bid, publisher_campaign).then(promise => {
+                            this.getPricing(intersection, bids_filtered, publisher_campaign).then(promise => {
                                 let pricingPromiseResults = promise.data.results
                                 console.log(pricingPromiseResults);
+
+                                res.status(200).json({
+                                    header: {
+                                        query_id: Math.floor((Math.random() * 10000000) + 1)
+                                    },
+                                    status:200,
+                                    ads: adsPromiseResults
+
+                                })
+
                             })
 
                         })
