@@ -5,7 +5,12 @@ import axios from 'axios';
 
 export class QueryController {
 
-    public getCampaigns (req: Request, res: Response) {
+    public bid;
+    public targeting;
+    public exclusionResults;
+    public targetingResults;
+
+    public getCampaigns = (req: Request, res: Response) => {
         let category = req.query.category;
         let publisher_campaign = req.query.publisher_campaign;
         let zip_code = req.query.zip_code;
@@ -40,14 +45,68 @@ export class QueryController {
         }
 
 
+        this.getMatching(category).then(promise => {
+            let matchingResults = promise.data.results;
+            console.log(matchingResults)
+            console.log("\n")
+            
+            //id, bid, targeting
+            let id_values = matchingResults.map(a => a.id);
+            this.bid = matchingResults.map(a => a.bid);
+            this.targeting = matchingResults.map(a => a.targeting)
 
-        console.log(this.getMatching);
-        //console.log(responseMatching);
+            this.getExclusion(id_values, publisher_campaign).then(promise => {
+                let exclusionPromiseResults = promise.data.results;
+                this.exclusionResults = exclusionPromiseResults.map(a => a.id);
+                console.log(this.exclusionResults);
+                console.log("\n")
+
+                this.getTargeting(id_values, zip_code).then(promise => {
+                    let targetingPromiseResults = promise.data.results;
+                    this.targetingResults = targetingPromiseResults.map(a => a.id);
+                    console.log(this.targetingResults);
+                    console.log("\n")
+
+                    //inter entre resultados de exclusion y targeting
+                    let intersection = this.exclusionResults.filter(x => this.targetingResults.includes(x))
+                    console.log("intersection")
+                    console.log(intersection);
+                    console.log("\n")
+                    
+                    this.getRanking(intersection, this.bid).then(promise => {
+                        let rankingPromiseResults = promise.data.results;
+                        console.log(rankingPromiseResults);
+                        console.log("\n")
+
+                        this.getAds(intersection).then(promise => {
+                            let adsPromiseResults = promise.data.results;
+                            console.log(adsPromiseResults);
+                            console.log("\n");
+
+                            this.getPricing(intersection, this.bid, publisher_campaign).then(promise => {
+                                let pricingPromiseResults = promise.data.results
+                                console.log(pricingPromiseResults);
+                            })
+
+                        })
+
+                    }) 
+
+                    
+
+
+                })
+
+            })
+
+
+
+        });
 
         return;
     }
 
-     getMatching = async (categoryID) =>{
+    public getMatching = async (categoryID) => {
         try{
             return await axios.get(matchingURI+'?category='+categoryID);
         }
@@ -56,5 +115,66 @@ export class QueryController {
             return error;
         }
     }
+
+    public getExclusion = async (advertiser_campaign_id, publisher_campaign_id) => {
+        let advertiser_campaign_id_str = advertiser_campaign_id.join();
+        try {
+            return await axios.get(exclusionsURI+'?advertiser_campaigns='+advertiser_campaign_id_str+'&publisher_campaign='+publisher_campaign_id)
+        }
+        catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    public getTargeting = async (advertiser_campaign_id, zip_code) => {
+        let advertiser_campaign_id_str = advertiser_campaign_id.join();
+        try {
+            return await axios.get(targetingURI+'?advertiser_campaigns='+advertiser_campaign_id_str+'&zip_code='+zip_code)
+        }
+        catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+    
+    public getRanking = async (advertiser_campaign_id, advertiser_campaign_bids) => {
+        let advertiser_campaign_id_str = advertiser_campaign_id.join();
+        let advertiser_campaign_bids_str = advertiser_campaign_bids.join();
+        try {
+            return await axios.get(rankingURI+'?advertiser_campaigns='+advertiser_campaign_id_str+'&advertiser_campaigns_bids='+advertiser_campaign_bids_str)
+        }
+        catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    public getAds = async (advertiser_campaign_id) => {
+        let advertiser_campaign_id_str = advertiser_campaign_id.join();
+        try {
+            return await axios.get(adsURI+'?advertiser_campaigns='+advertiser_campaign_id_str)
+        }
+        catch (error) {
+            console.log(error);
+            return error;
+        }
+    }
+
+    public getPricing = async (advertiser_campaign_id, advertiser_campaign_bids, publisher_campaign_id) => {
+        let advertiser_campaign_id_str = advertiser_campaign_id.join();
+        let advertiser_campaign_bids_str = advertiser_campaign_bids.join();
+        try {
+            return await axios.get(pricingURI+'?advertiser_campaigns='+advertiser_campaign_id_str+'&advertiser_campaigns_bids='+advertiser_campaign_bids_str+'&publisher_campaign='+publisher_campaign_id)
+        }
+        catch (error) {
+            console.log(error);
+            return error;
+        }
+
+    }
+
+
+
 
 }
