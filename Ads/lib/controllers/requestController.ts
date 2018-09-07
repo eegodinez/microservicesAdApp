@@ -13,7 +13,7 @@ export class AdsController {
             })
             return;
         }
-        mysql_connection.query('SELECT campaign_ads.campaign_id, ads.id, ads.headline, ads.description, ads.url FROM ads JOIN campaign_ads ON ads.id = campaign_ads.ad_id WHERE campaign_ads.campaign_id IN ('+advertiser_campaigns+')'
+        mysql_connection.query('SELECT campaign_ads.campaign_id, ads.id, ads.headline, ads.description, ads.url FROM ads JOIN campaign_ads ON ads.id = campaign_ads.ad_id WHERE campaign_ads.campaign_id IN ('+advertiser_campaigns+') ORDER BY campaign_ads.campaign_id'
          , (err, result, fields) => {
             if (err) {
                 console.log("Status 500. Details: " + err);
