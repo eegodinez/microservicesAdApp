@@ -25,30 +25,41 @@ export class AdsController {
                 return;
             } 
             if (result.length > 0){
-                var ad_cam:Number[] = advertiser_campaigns.split(",");
                 var random = 0;
                 var registro = 0;
                 let resultL = result.length;
+                let resultLI = result.length;
                 var value = result.map(k =>k.campaign_id);
                 var id = result.map(k =>k.id);
                 var headline = result.map(k =>k.headline);
                 var description = result.map(k =>k.description);
                 var url = result.map(k =>k.url);
                 var arreglo = [];
+                var debe = false;
 
                 for(var i=0; i<resultL-1; i++){
-                    for(var j=i+1; j<resultL; j++){
+                    console.log("valor i: "+ i);
+                    debe = true;
+                    for(var j=i+1; j<resultLI; j++){
+                        console.log("valor j: "+j);
                         if(Number(value[i]) != Number(value[j])){
-                            i=j;
-                            j=resultL;
-                            random = Math.floor(Math.random() * i) + 0;
+                            random =  Math.round(Math.random() * (j - i) + i)-1;
+                            if(random<i) random=i;
                             arreglo[registro]={ id: Number(id[random]), headline: headline[random],
                                 description: description[random], url: url[random]};
                             registro++;
+                            i=j-1;
+                            j=resultLI;
+                            debe=false;
                         }
                     }
                 }
-                if(Number(value[resultL-2]) != Number(value[resultL-1])){
+                if(debe){
+                    random =  Math.round(Math.random() * ((j-1) - (i-1)) + (i-1))-1;
+                    if(random<i) random=i;
+                    arreglo[registro]={ id: Number(id[random]), headline: headline[random],
+                        description: description[random], url: url[random]};
+                }else if(Number(value[resultL-2]) != Number(value[resultL-1])){
                     arreglo[registro]={ id: Number(id[resultL-1]), headline: headline[resultL-1],
                         description: description[resultL-1], url: url[resultL-1]};
                 }
