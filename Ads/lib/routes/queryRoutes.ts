@@ -5,7 +5,7 @@ export class Routes {
     public adsController: AdsController = new AdsController();
 
     public routes(app): void {
-        app.route('/')
+        app.route('/ads')
         .get(this.adsController.getAdvertisers);       
     }
     

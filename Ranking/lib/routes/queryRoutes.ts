@@ -5,7 +5,7 @@ export class Routes {
     public rankingController: RankingController = new RankingController();
 
     public routes(app): void {
-        app.route('/')
+        app.route('/ranking')
         .get(this.rankingController.getCampaigns);       
     }
     

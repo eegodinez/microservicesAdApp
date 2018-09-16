@@ -5,7 +5,7 @@ export class Routes {
     public exclusionsController: ExclusionsController = new ExclusionsController();
 
     public routes(app): void {
-        app.route('/')
+        app.route('/exclusion')
         .get(this.exclusionsController.getNonExcludedCampaigns);       
     }
     

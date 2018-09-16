@@ -5,7 +5,7 @@ export class Routes {
     public targetingController: TargetingController = new TargetingController();
 
     public routes(app): void {
-        app.route('/')
+        app.route('/targeting')
         .get(this.targetingController.getCampaignsZip);       
     }
     

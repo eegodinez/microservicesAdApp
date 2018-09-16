@@ -5,7 +5,7 @@ export class Routes {
     public matchingController: MatchingController = new MatchingController();
 
     public routes(app): void {
-        app.route('/')
+        app.route('/matching')
         .get(this.matchingController.getActiveCampaigns);       
     }
     
