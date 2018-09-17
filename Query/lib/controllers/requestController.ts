@@ -1,7 +1,27 @@
-import mysql_connection from '../models/mysqlDB';
 import { Request, Response } from 'express';
-import { matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI} from './constants'
+import { S3 } from 'aws-sdk'
 import axios from 'axios';
+
+var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
+
+
+let s3 = new S3({accessKeyId: "AKIAISNNL4QNTV2F2DIQ", secretAccessKey: "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"});
+let params = {
+    Bucket: "ms-ufm",
+    Key: "URI.json"
+}
+
+s3.getObject(params).promise().then(promise => {
+    let jsonURI = JSON.parse(promise.Body.toString())
+    matchingURI = jsonURI["matchingURI"];
+    exclusionsURI = jsonURI["exclusionsURI"];
+    targetingURI = jsonURI["targetingURI"];
+    rankingURI = jsonURI["rankingURI"];
+    adsURI = jsonURI["adsURI"];
+    pricingURI = jsonURI["pricingURI"];
+}).catch(error => {
+    console.log(error);
+});
 
 export class QueryController {
 
@@ -47,6 +67,13 @@ export class QueryController {
 
         this.getMatching(category).then(promise => {
 
+            if (promise.data == null){
+                res.status(500).json({
+                    status:500,
+                    details: promise.Error
+                })
+                return;
+            }
             let matchingResults = promise.data.results;
             console.log(matchingResults)
             console.log("\n")
@@ -154,7 +181,8 @@ export class QueryController {
 
 
         }).catch((error) => {
-            console.log(error)
+            console.log("Matching Failed!")
+            console.log(error);
             res.status(404).json({
                 status:404,
                 message: "No ad(s) found!"
@@ -165,10 +193,12 @@ export class QueryController {
     }
 
     public getMatching = async (categoryID) => {
+        console.log(matchingURI);
         try{
             return await axios.get(matchingURI+'?category='+categoryID);
         }
         catch (error) {
+            console.log("getMatching Failed!");
             console.log(error);
             return error;
         }
