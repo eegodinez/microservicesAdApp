@@ -5,7 +5,7 @@ import axios from 'axios';
 var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
 
 
-let s3 = new S3({accessKeyId: "AKIAISNNL4QNTV2F2DIQ", secretAccessKey: "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"});
+
 let params = {
     Bucket: "ms-ufm",
     Key: "URI.json"
