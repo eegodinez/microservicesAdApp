@@ -1,18 +1,10 @@
 import { Request, Response } from 'express';
-import { S3 } from 'aws-sdk'
 import axios from 'axios';
 
 var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
 
-
-
-let params = {
-    Bucket: "ms-ufm",
-    Key: "URI.json"
-}
-
-s3.getObject(params).promise().then(promise => {
-    let jsonURI = JSON.parse(promise.Body.toString())
+axios.get("https://s3.amazonaws.com/ms-ufm/URI.json").then(promise => {
+    let jsonURI = promise.data
     matchingURI = jsonURI["matchingURI"];
     exclusionsURI = jsonURI["exclusionsURI"];
     targetingURI = jsonURI["targetingURI"];
@@ -21,7 +13,7 @@ s3.getObject(params).promise().then(promise => {
     pricingURI = jsonURI["pricingURI"];
 }).catch(error => {
     console.log(error);
-});
+})
 
 export class QueryController {
 
