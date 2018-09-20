@@ -1,0 +1,34 @@
+cd Query
+sudo docker build -t query_microservice .
+sudo docker tag query_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:query
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:query
+
+cd ../Matching
+sudo docker build -t matching_microservice .
+sudo docker tag matching_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:matching
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:matching
+
+cd ../Exclusion
+sudo docker build -t exclusion_microservice .
+sudo docker tag exclusion_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:exclusion
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:exclusion
+
+cd ../Targeting
+sudo docker build -t targeting_microservice .
+sudo docker tag targeting_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:targeting
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:targeting
+
+cd ../Ranking
+sudo docker build -t ranking_microservice .
+sudo docker tag ranking_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:ranking
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:ranking
+
+cd ../Ads
+sudo docker build -t ads_microservice .
+sudo docker tag ads_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:ads
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:ads
+
+cd ../Pricing
+sudo docker build -t pricing_microservice .
+sudo docker tag pricing_microservice:latest 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:pricing
+sudo docker push 649325517840.dkr.ecr.us-west-2.amazonaws.com/tarea4:pricing
