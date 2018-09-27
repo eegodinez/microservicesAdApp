@@ -3,7 +3,7 @@ import axios from 'axios';
 
 var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
 
-axios.get("https://s3.amazonaws.com/ms-ufm/URI.json").then(promise => {
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
     let jsonURI = promise.data
     matchingURI = jsonURI["matchingURI"];
     exclusionsURI = jsonURI["exclusionsURI"];
