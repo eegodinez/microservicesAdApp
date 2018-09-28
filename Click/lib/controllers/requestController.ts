@@ -120,10 +120,8 @@ export class QueryController {
 
                         this.getAds(intersection).then(promise => {
                             let adsPromiseResults = promise.data.results;
-                            let rngQueryID = crypto.randomBytes(10).toString('hex')
                             for (let value in adsPromiseResults){
-                                let impressionID = crypto.randomBytes(10).toString('hex')
-                                Object.assign(adsPromiseResults[value], {impression_id: impressionID, clickURL: "http://publiclb/click/?query_id="+rngQueryID+"&impression_id="+impressionID})
+                                Object.assign(adsPromiseResults[value], {impression_id: crypto.randomBytes(10).toString('hex')})
                             }
                             
                             console.log(adsPromiseResults);
@@ -132,6 +130,7 @@ export class QueryController {
                             this.getPricing(intersection, bids_filtered, publisher_campaign).then(promise => {
                                 let pricingPromiseResults = promise.data.results
                                 console.log(pricingPromiseResults);
+                                let rngQueryID = crypto.randomBytes(10).toString('hex')
 
                                 let params = {
                                     TableName: "Tarea6",

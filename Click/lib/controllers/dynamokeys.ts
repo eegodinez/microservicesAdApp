@@ -1,3 +1,4 @@
+export default 
 {
     "user": "DynamoDB",
     "access": "AKIAIOYFHGVCNDBYCC2A",
