@@ -1,9 +1,19 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
+import * as crypto from 'crypto';
+import * as AWS from 'aws-sdk';
+import { DocumentClient } from '../../node_modules/aws-sdk/clients/dynamodb';
 
 var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
 
-axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
+
+let docClient = new AWS.DynamoDB.DocumentClient( {
+    region: "us-east-1",
+    endpoint: "dynamodb.us-east-1.amazonaws.com",
+    convertEmptyValues: true
+}); 
+
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise => {
     let jsonURI = promise.data
     matchingURI = jsonURI["matchingURI"];
     exclusionsURI = jsonURI["exclusionsURI"];
@@ -108,7 +118,7 @@ export class QueryController {
                         this.getAds(intersection).then(promise => {
                             let adsPromiseResults = promise.data.results;
                             for (let value in adsPromiseResults){
-                                Object.assign(adsPromiseResults[value], {impression_id: Math.floor((Math.random() * 10000000) + 1)});
+                                Object.assign(adsPromiseResults[value], {impression_id: crypto.randomBytes(10).toString('hex')})
                             }
                             
                             console.log(adsPromiseResults);
@@ -117,14 +127,28 @@ export class QueryController {
                             this.getPricing(intersection, bids_filtered, publisher_campaign).then(promise => {
                                 let pricingPromiseResults = promise.data.results
                                 console.log(pricingPromiseResults);
+                                let rngQueryID = crypto.randomBytes(10).toString('hex')
+
+                                let params = {
+                                    TableName: "Tarea6",
+                                    Item: {
+                                        QueryID: rngQueryID,
+                                        ads: adsPromiseResults
+                                    }
+                                }
+
+                                docClient.put(params).promise().then(promise => {
+                                    console.log(promise);
+                                }).catch(error => {
+                                    console.log(error);
+                                })
 
                                 res.status(200).json({
                                     header: {
-                                        query_id: Math.floor((Math.random() * 10000000) + 1)
+                                        query_id: rngQueryID
                                     },
                                     status:200,
                                     ads: adsPromiseResults
-
                                 })
 
                             }).catch((error) => {
