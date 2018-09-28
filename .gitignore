@@ -2,3 +2,6 @@ node_modules/
 dist/
 mysqlDB.ts/
 models/
+Query/lib/controllers/dynamokeys.ts/
+Click/lib/controllers/dynamokeys.ts/
+dynamokeys.ts/
