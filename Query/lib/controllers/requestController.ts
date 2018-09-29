@@ -2,11 +2,9 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import * as crypto from 'crypto';
 import * as AWS from 'aws-sdk';
-import { DocumentClient } from '../../node_modules/aws-sdk/clients/dynamodb';
 import * as dynamo from './dynamokeys';
 
-var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
-
+var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI, clickURI: string;
 
 let docClient = new AWS.DynamoDB.DocumentClient( {
     region: "us-east-1",
@@ -24,6 +22,7 @@ axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise =
     rankingURI = jsonURI["rankingURI"];
     adsURI = jsonURI["adsURI"];
     pricingURI = jsonURI["pricingURI"];
+    clickURI = jsonURI["clickURI"];
 }).catch(error => {
     console.log(error);
 })
@@ -69,16 +68,13 @@ export class QueryController {
             maximum = 10;
         }
 
-
         this.getMatching(category).then(promise => {
 
-            if (promise.data == null){
-                res.status(500).json({
-                    status:500,
-                    details: promise.Error
-                })
+            if (promise.response){
+                res.status(promise.response.status).json(promise.response.data)
                 return;
             }
+
             let matchingResults = promise.data.results;
             console.log(matchingResults)
             console.log("\n")
@@ -89,12 +85,24 @@ export class QueryController {
             this.targeting = matchingResults.map(a => a.targeting)
 
             this.getExclusion(id_values, publisher_campaign).then(promise => {
+
+                if (promise.response){
+                    res.status(promise.response.status).json(promise.response.data)
+                    return;
+                }
+
                 let exclusionPromiseResults = promise.data.results;
                 this.exclusionResults = exclusionPromiseResults.map(a => a.id);
                 console.log(this.exclusionResults);
                 console.log("\n")
 
                 this.getTargeting(id_values, zip_code).then(promise => {
+
+                    if (promise.response){
+                        res.status(promise.response.status).json(promise.response.data)
+                        return;
+                    }
+
                     let targetingPromiseResults = promise.data.results;
                     this.targetingResults = targetingPromiseResults.map(a => a.id);
                     console.log(this.targetingResults);
@@ -114,22 +122,40 @@ export class QueryController {
                    
                      
                     this.getRanking(intersection, bids_filtered,maximum).then(promise => {
+
+                        if (promise.response){
+                            res.status(promise.response.status).json(promise.response.data)
+                            return;
+                        }
+
                         let rankingPromiseResults = promise.data.results;
                         console.log(rankingPromiseResults);
                         console.log("\n")
 
                         this.getAds(intersection).then(promise => {
+
+                            if (promise.response){
+                                res.status(promise.response.status).json(promise.response.data)
+                                return;
+                            }
+
                             let adsPromiseResults = promise.data.results;
                             let rngQueryID = crypto.randomBytes(10).toString('hex')
                             for (let value in adsPromiseResults){
                                 let impressionID = crypto.randomBytes(10).toString('hex')
-                                Object.assign(adsPromiseResults[value], {impression_id: impressionID, clickURL: "http://publiclb/click/?query_id="+rngQueryID+"&impression_id="+impressionID})
+                                Object.assign(adsPromiseResults[value], {impression_id: impressionID, clickURL: clickURI+"?query_id="+rngQueryID+"&impression_id="+impressionID})
                             }
                             
                             console.log(adsPromiseResults);
                             console.log("\n");
 
                             this.getPricing(intersection, bids_filtered, publisher_campaign).then(promise => {
+
+                                if (promise.response){
+                                    res.status(500).json(promise.response.data)
+                                    return;
+                                }
+
                                 let pricingPromiseResults = promise.data.results
                                 console.log(pricingPromiseResults);
 
@@ -137,7 +163,8 @@ export class QueryController {
                                     TableName: "Tarea6",
                                     Item: {
                                         QueryID: rngQueryID,
-                                        ads: adsPromiseResults
+                                        ads: adsPromiseResults,
+                                        TTL: Math.floor(new Date().getTime() / 1000) + 86400
                                     }
                                 }
 
@@ -145,6 +172,8 @@ export class QueryController {
                                     console.log(promise);
                                 }).catch(error => {
                                     console.log(error);
+                                    res.status(500).json(error)
+                                    return;
                                 })
 
                                 res.status(200).json({
@@ -157,58 +186,52 @@ export class QueryController {
 
                             }).catch((error) => {
                                 console.log(error)
-                                res.status(404).json({
-                                    status:404,
-                                    message: "No ad(s) found!"
+                                res.status(500).json({
+                                    status:500,
+                                    message: "Query-MS failed at call to Pricing",
+                                    details: error
                                 })
                             })
-
                         }).catch((error) => {
                             console.log(error)
-                            res.status(404).json({
-                                status:404,
-                                message: "No ad(s) found!"
+                            res.status(500).json({
+                                status:500,
+                                message: "Query-MS failed at call to Ads",
+                                details: error
                             })
                         })
-
                     }).catch((error) => {
                         console.log(error)
-                        res.status(404).json({
-                            status:404,
-                            message: "No ad(s) found!"
+                        res.status(500).json({
+                            status:500,
+                            message: "Query-MS failed at call to Ranking",
+                            details: error
                         })
                     })
-
-                    
-
-
                 }).catch((error) => {
                     console.log(error)
-                    res.status(404).json({
-                        status:404,
-                        message: "No ad(s) found!"
+                    res.status(500).json({
+                        status:500,
+                        message: "Query-MS failed at call to Targeting",
+                        details: error
                     })
                 })
-
             }).catch((error) => {
                 console.log(error)
-                res.status(404).json({
-                    status:404,
-                    message: "No ad(s) found!"
+                res.status(500).json({
+                    status:500,
+                    message: "Query-MS failed at call to Exclusion",
+                    details: error
                 })
             })
-
-
-
         }).catch((error) => {
-            console.log("Matching Failed!")
             console.log(error);
-            res.status(404).json({
-                status:404,
-                message: "No ad(s) found!"
+            res.status(500).json({
+                status:500,
+                message: "Query-MS failed at call to Matching",
+                details: error
             })
         });
-
         return;
     }
 

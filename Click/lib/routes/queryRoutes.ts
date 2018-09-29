@@ -1,12 +1,12 @@
-import { QueryController } from "../controllers/requestController";
+import { ClickController } from "../controllers/requestController";
 
 export class Routes {
 
-    public queryController: QueryController = new QueryController();
+    public queryController: ClickController = new ClickController();
 
     public routes(app): void {
         app.route('/click')
-        .get(this.queryController.getCampaigns);       
+        .get(this.queryController.getQueryID);       
     }
     
 }

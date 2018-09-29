@@ -4,6 +4,12 @@ import { Request, Response } from 'express';
 export class MatchingController {
 
     public getActiveCampaigns (req: Request, res: Response) {
+        req.on('err', err => {
+            console.error(err);
+        })
+        res.on('err', err => {
+            console.error(err);
+        })
         let category = req.query.category;
         if (!category) {
             console.log("Category is missing!");
