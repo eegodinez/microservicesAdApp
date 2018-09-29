@@ -1,1 +1,0 @@
-{"version":3,"file":"queryRoutes.js","sourceRoot":"","sources":["../../lib/routes/queryRoutes.ts"],"names":[],"mappings":";;AAAA,wEAAsE;AAEtE,MAAa,MAAM;IAAnB;QAEW,uBAAkB,GAAuB,IAAI,sCAAkB,EAAE,CAAC;IAO7E,CAAC;IALU,MAAM,CAAC,GAAG;QACb,GAAG,CAAC,KAAK,CAAC,GAAG,CAAC;aACb,GAAG,CAAC,IAAI,CAAC,kBAAkB,CAAC,kBAAkB,CAAC,CAAC;IACrD,CAAC;CAEJ;AATD,wBASC"}

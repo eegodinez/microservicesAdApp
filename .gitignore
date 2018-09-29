@@ -1,5 +1,4 @@
 node_modules/
 dist/
-mysqlDB.ts/
 models/
 dynamokeys.ts
