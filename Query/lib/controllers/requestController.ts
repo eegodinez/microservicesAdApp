@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as crypto from 'crypto';
 import * as AWS from 'aws-sdk';
 import { DocumentClient } from '../../node_modules/aws-sdk/clients/dynamodb';
-import * as keys from './dynamokeys';
+import * as dynamo from './dynamokeys';
 
 var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: string;
 
@@ -11,8 +11,8 @@ var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI: st
 let docClient = new AWS.DynamoDB.DocumentClient( {
     region: "us-east-1",
     endpoint: "dynamodb.us-east-1.amazonaws.com",
-    accessKeyId: keys.default.access,
-    secretAccessKey: keys.default.secret,
+    accessKeyId: dynamo.default.access,
+    secretAccessKey: dynamo.default.secret,
     convertEmptyValues: true
 }); 
 
