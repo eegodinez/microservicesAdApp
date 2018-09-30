@@ -5,8 +5,8 @@ export class Routes {
     public rankingController: RankingController = new RankingController();
 
     public routes(app): void {
-        app.route('/ranking')
-        .get(this.rankingController.getCampaigns);       
+        app.route('/ranking').get(this.rankingController.getCampaigns);
+        app.route('/health').get(this.rankingController.healthCheck);
     }
     
 }

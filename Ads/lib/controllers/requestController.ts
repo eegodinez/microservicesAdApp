@@ -80,4 +80,11 @@ export class AdsController {
 
     }
 
+    public healthCheck = (req: Request, res: Response) => {
+        res.status(200).json({
+            'Content-Type': 'text/plain',
+            'Content-Length': 2
+        })
+    }
+
 }

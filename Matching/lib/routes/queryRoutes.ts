@@ -5,8 +5,8 @@ export class Routes {
     public matchingController: MatchingController = new MatchingController();
 
     public routes(app): void {
-        app.route('/matching')
-        .get(this.matchingController.getActiveCampaigns);       
+        app.route('/matching').get(this.matchingController.getActiveCampaigns);
+        app.route('/health').get(this.matchingController.healthCheck);
     }
     
 }

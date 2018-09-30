@@ -70,9 +70,18 @@ export class QueryController {
 
         this.getMatching(category).then(promise => {
 
+
             if (promise.response){
                 res.status(promise.response.status).json(promise.response.data)
                 return;
+            }
+
+            if (promise.errno){
+                res.status(500).json({
+                    Error: promise.errno,
+                    URL: promise.config.url
+                })
+                return;                
             }
 
             let matchingResults = promise.data.results;
@@ -91,6 +100,14 @@ export class QueryController {
                     return;
                 }
 
+                if (promise.errno){
+                    res.status(500).json({
+                        Error: promise.errno,
+                        URL: promise.config.url
+                    })
+                    return;                
+                }
+
                 let exclusionPromiseResults = promise.data.results;
                 this.exclusionResults = exclusionPromiseResults.map(a => a.id);
                 console.log(this.exclusionResults);
@@ -101,6 +118,14 @@ export class QueryController {
                     if (promise.response){
                         res.status(promise.response.status).json(promise.response.data)
                         return;
+                    }
+
+                    if (promise.errno){
+                        res.status(500).json({
+                            Error: promise.errno,
+                            URL: promise.config.url
+                        })
+                        return;                
                     }
 
                     let targetingPromiseResults = promise.data.results;
@@ -128,6 +153,14 @@ export class QueryController {
                             return;
                         }
 
+                        if (promise.errno){
+                            res.status(500).json({
+                                Error: promise.errno,
+                                URL: promise.config.url
+                            })
+                            return;                
+                        }
+
                         let rankingPromiseResults = promise.data.results;
                         console.log(rankingPromiseResults);
                         console.log("\n")
@@ -137,6 +170,14 @@ export class QueryController {
                             if (promise.response){
                                 res.status(promise.response.status).json(promise.response.data)
                                 return;
+                            }
+
+                            if (promise.errno){
+                                res.status(500).json({
+                                    Error: promise.errno,
+                                    URL: promise.config.url
+                                })
+                                return;                
                             }
 
                             let adsPromiseResults = promise.data.results;
@@ -154,6 +195,14 @@ export class QueryController {
                                 if (promise.response){
                                     res.status(500).json(promise.response.data)
                                     return;
+                                }
+
+                                if (promise.errno){
+                                    res.status(500).json({
+                                        Error: promise.errno,
+                                        URL: promise.config.url
+                                    })
+                                    return;                
                                 }
 
                                 let pricingPromiseResults = promise.data.results
@@ -233,6 +282,13 @@ export class QueryController {
             })
         });
         return;
+    }
+
+    public healthCheck = (req: Request, res: Response) => {
+        res.status(200).json({
+            'Content-Type': 'text/plain',
+            'Content-Length': 2
+        })
     }
 
     public getMatching = async (categoryID) => {
