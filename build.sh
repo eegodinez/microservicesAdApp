@@ -5,6 +5,11 @@ sudo docker build -t ads_microservice .
 sudo docker tag ads_microservice:latest 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:ads
 sudo docker push 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:ads
 
+cd ../Click/
+sudo docker build -t click_microservice .
+sudo docker tag click_microservice:latest 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:click
+sudo docker push 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:click
+
 cd ../Exclusion/
 sudo docker build -t exclusion_microservice .
 sudo docker tag exclusion_microservice:latest 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:exclusion

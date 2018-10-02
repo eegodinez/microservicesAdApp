@@ -44,7 +44,7 @@ export class ClickController {
         docClient.get(params).promise().then(promise => {
             let ad = promise.Item.ads.find(adresults => adresults.impression_id === impression_id)
             console.log(ad.url);
-            res.redirect(301, ad.url);
+            res.redirect(302, ad.url);
         }).catch(err => {
             console.log(err)
         });
