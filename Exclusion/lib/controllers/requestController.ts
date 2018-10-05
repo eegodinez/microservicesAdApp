@@ -24,7 +24,7 @@ export class ExclusionsController {
             })
             return;
         }
-        mysql_connection.query('SELECT advertiser_campaigns.id FROM publisher_campaigns JOIN publishers ON publisher_campaigns.publisher_id = publishers.id JOIN publishers_exclusions ON publishers_exclusions.publisher_id = publishers.id JOIN advertisers ON publishers_exclusions.advertiser_id = advertisers.id JOIN advertiser_campaigns ON advertisers.id = advertiser_campaigns.advertiser_id WHERE publisher_campaigns.id = ?', 
+        mysql_connection.query('SELECT advertiser_campaigns.id, publisher_campaigns.publisher_id FROM publisher_campaigns JOIN publishers ON publisher_campaigns.publisher_id = publishers.id JOIN publishers_exclusions ON publishers_exclusions.publisher_id = publishers.id JOIN advertisers ON publishers_exclusions.advertiser_id = advertisers.id JOIN advertiser_campaigns ON advertisers.id = advertiser_campaigns.advertiser_id WHERE publisher_campaigns.id = ?', 
             publisher_campaign, (err, result, fields) => {
             if (err) {
                 console.log("Status 500. Details: " + err);

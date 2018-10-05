@@ -1,18 +1,26 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 import * as crypto from 'crypto';
-import * as AWS from 'aws-sdk';
+import DynamoDB = require('aws-sdk/clients/dynamodb');
+import Firehose = require('aws-sdk/clients/firehose');
 import * as dynamo from './dynamokeys';
 
 var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI, clickURI: string;
 
-let docClient = new AWS.DynamoDB.DocumentClient( {
+let docClient = new DynamoDB.DocumentClient( {
     region: "us-east-1",
     endpoint: "dynamodb.us-east-1.amazonaws.com",
     accessKeyId: dynamo.default.access,
     secretAccessKey: dynamo.default.secret,
-    convertEmptyValues: true
+    convertEmptyValues: true,
 }); 
+
+let firehoseClient = new Firehose({
+    region: "us-east-1",
+    endpoint: "firehose.us-east-1.amazonaws.com",
+    accessKeyId: dynamo.default.access,
+    secretAccessKey: dynamo.default.secret,
+})
 
 axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
     let jsonURI = promise.data
@@ -222,6 +230,23 @@ export class QueryController {
                                 }).catch(error => {
                                     console.log(error);
                                     res.status(500).json(error)
+                                    return;
+                                })
+
+
+                                let fh_params = {
+                                    DeliveryStreamName: 'QueryStream', /* required */
+                                    Record: { /* required */
+                                        Data: rngQueryID,
+                                        //ads: adsPromiseResults,
+                                    }
+                                  };
+
+                                firehoseClient.putRecord(fh_params).promise().then((promise) => {
+                                    console.log(promise)
+                                }).catch((err) => {
+                                    console.log(err);
+                                    res.status(500).json(err)
                                     return;
                                 })
 

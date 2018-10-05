@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import * as AWS from 'aws-sdk';
+import DynamoDB = require('aws-sdk/clients/dynamodb');
+import Firehose = require('aws-sdk/clients/firehose');
 import * as keys from './dynamokeys';
 
-let docClient = new AWS.DynamoDB.DocumentClient( {
+let docClient = new DynamoDB.DocumentClient( {
     region: "us-east-1",
     endpoint: "dynamodb.us-east-1.amazonaws.com",
     accessKeyId: keys.default.access,
