@@ -22,8 +22,9 @@ export class TargetingController {
             })
             return;
         }
-        mysql_connection.query('SELECT id FROM advertiser_campaigns WHERE advertiser_campaigns.id IN ('+advertiser_campaigns+') AND (targeting = "ALL" OR targeting LIKE "%'+zip_code+'%")'
+        mysql_connection.query('SELECT id, advertiser_id FROM advertiser_campaigns WHERE advertiser_campaigns.id IN ('+advertiser_campaigns+') AND (targeting = "ALL" OR targeting LIKE "%'+zip_code+'%")'
          , (err, result, fields) => {
+            console.log(result)
             if (err) {
                 console.log("Status 500. Details: " + err);
                 res.status(500).json({

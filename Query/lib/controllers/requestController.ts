@@ -22,7 +22,7 @@ let firehoseClient = new Firehose({
     secretAccessKey: dynamo.default.secret,
 })
 
-axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise => {
     let jsonURI = promise.data
     matchingURI = jsonURI["matchingURI"];
     exclusionsURI = jsonURI["exclusionsURI"];
@@ -117,9 +117,10 @@ export class QueryController {
                 }
 
                 let exclusionPromiseResults = promise.data.results;
+                let global_publisher_id = promise.data.publisher_id;
                 this.exclusionResults = exclusionPromiseResults.map(a => a.id);
                 console.log(this.exclusionResults);
-                console.log("\n")
+                console.log("\n");
 
                 this.getTargeting(id_values, zip_code).then(promise => {
 
@@ -139,9 +140,11 @@ export class QueryController {
                     let targetingPromiseResults = promise.data.results;
                     this.targetingResults = targetingPromiseResults.map(a => a.id);
                     console.log(this.targetingResults);
-                    console.log("\n")
+                    console.log("\n");
 
                     //inter entre resultados de exclusion y targeting
+                    console.log("targeting")
+                    console.log(this.targetingResults)
                     let intersection = this.exclusionResults.filter(x => this.targetingResults.includes(x))
                     console.log("intersection")
                     console.log(intersection);

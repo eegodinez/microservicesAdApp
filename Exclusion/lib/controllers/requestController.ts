@@ -37,7 +37,9 @@ export class ExclusionsController {
             } 
             if (result.length > 0){
                 var ad_cam:Number[] = advertiser_campaigns.split(",");
-                var mi = result[0];
+                var mi = result[0].id;
+                console.log(mi)
+                console.log(result[0].publisher_id)
                 var value = Object.keys(mi).map(k => mi[k]);
                 for(var i=0; i<result.length; i++){
                     mi = result[i];
@@ -55,7 +57,8 @@ export class ExclusionsController {
                 }
                 console.log(arreglo);
                 res.status(200).json({
-                    results: arreglo
+                    results: arreglo,
+                    publisher_id: result[0].publisher_id
                 });
             }
             else {
