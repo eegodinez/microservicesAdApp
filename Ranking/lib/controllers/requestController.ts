@@ -26,9 +26,9 @@ export class RankingController {
             maximum = 10;
         }
         var ad_cam:Number[] = advertiser_campaigns.split(",");
-        var ad_cam_bid:Number[] = advertiser_campaigns_bids.split(",");
-        
-        const obj = ad_cam.reduce((obj: any, value: any, index: number) => {
+        var ad_cam_bid:any[] = advertiser_campaigns_bids.split(",");
+
+         const obj = ad_cam.reduce((obj: any, value: any, index: number) => {
             obj[value] = ad_cam_bid[index];
             return obj;
         }, {});
@@ -37,14 +37,18 @@ export class RankingController {
             return obj[b] - obj[a] 
         });
 
+        ad_cam_bid.sort((a: any, b: any) => { 
+            return b - a 
+        });
+
         var arreglo = [];
         if(ad_cam.length < maximum){
             for(var i=0; i<ad_cam.length; i ++){
-                arreglo[i]={ id: Number(ad_cam[i])};
+                arreglo[i]={ id: Number(ad_cam[i]), bid: Number(ad_cam_bid[i])};
             }
         }else{
             for(var i=0; i<maximum; i ++){
-                arreglo[i]={ id: Number(ad_cam[i])};
+                arreglo[i]={ id: Number(ad_cam[i]), bid: Number(ad_cam_bid[i])};
             }
         }
         console.log(arreglo);

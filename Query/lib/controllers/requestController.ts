@@ -119,6 +119,7 @@ export class QueryController {
                 let exclusionPromiseResults = promise.data.results;
                 let global_publisher_id = promise.data.publisher_id;
                 this.exclusionResults = exclusionPromiseResults.map(a => a.id);
+                console.log('Exclusion Results');
                 console.log(this.exclusionResults);
                 console.log("\n");
 
@@ -138,9 +139,12 @@ export class QueryController {
                     }
 
                     let targetingPromiseResults = promise.data.results;
+                    console.log(targetingPromiseResults);
+
                     this.targetingResults = targetingPromiseResults.map(a => a.id);
-                    console.log(this.targetingResults);
-                    console.log("\n");
+
+                    let targetingAdIdResults = targetingPromiseResults.map(a => a.advertiser_id);
+
 
                     //inter entre resultados de exclusion y targeting
                     console.log("targeting")
@@ -150,11 +154,22 @@ export class QueryController {
                     console.log(intersection);
                     console.log("\n")
 
+
+
                     let bids_filtered = [];
     
                     for (let value in intersection){
                         bids_filtered.push(matchingResults.find(mresults => mresults.id === intersection[value]).bid)
                     }
+
+                    let advertiser_id_filtered = []
+                    for (let value in intersection){
+                        advertiser_id_filtered.push(targetingPromiseResults.find(tresults => tresults.id === intersection[value]).advertiser_id)
+                    }
+
+                    console.log("Filtered advertiser id")
+                    console.log(advertiser_id_filtered);
+                    console.log("\n")
                    
                      
                     this.getRanking(intersection, bids_filtered,maximum).then(promise => {
@@ -173,10 +188,13 @@ export class QueryController {
                         }
 
                         let rankingPromiseResults = promise.data.results;
+                        let ordered_advertiser_campaign_id = rankingPromiseResults.map(a => a.id);
+                        let ordered_bids = rankingPromiseResults.map(a => a.bid);
+                        console.log("Ranking Promise Results");
                         console.log(rankingPromiseResults);
-                        console.log("\n")
+                        console.log("\n");
 
-                        this.getAds(intersection).then(promise => {
+                        this.getAds(ordered_advertiser_campaign_id).then(promise => {
 
                             if (promise.response){
                                 res.status(promise.response.status).json(promise.response.data)
@@ -197,7 +215,13 @@ export class QueryController {
                                 let impressionID = crypto.randomBytes(10).toString('hex')
                                 Object.assign(adsPromiseResults[value], {impression_id: impressionID, clickURL: clickURI+"?query_id="+rngQueryID+"&impression_id="+impressionID})
                             }
+
+                            for (let i=0; i < ordered_bids.length; i++){
+                                console.log(i);
+                                Object.assign(adsPromiseResults[i], {bid: ordered_bids[i]})
+                            }
                             
+                            console.log('Ads Promise Results');
                             console.log(adsPromiseResults);
                             console.log("\n");
 
@@ -217,7 +241,9 @@ export class QueryController {
                                 }
 
                                 let pricingPromiseResults = promise.data.results
+                                console.log('Pricing Promise Results');
                                 console.log(pricingPromiseResults);
+                                console.log('\n');
 
                                 let params = {
                                     TableName: "Tarea6",
@@ -237,9 +263,10 @@ export class QueryController {
                                 })
 
 
+                                /*
                                 let fh_params = {
-                                    DeliveryStreamName: 'QueryStream', /* required */
-                                    Record: { /* required */
+                                    DeliveryStreamName: 'QueryStream',
+                                    Record: {
                                         Data: rngQueryID,
                                         //ads: adsPromiseResults,
                                     }
@@ -252,6 +279,7 @@ export class QueryController {
                                     res.status(500).json(err)
                                     return;
                                 })
+                                */
 
                                 res.status(200).json({
                                     header: {
