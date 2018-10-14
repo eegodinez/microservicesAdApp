@@ -13,7 +13,7 @@ export class AdsController {
             })
             return;
         }
-        mysql_connection.query('SELECT campaign_ads.campaign_id, ads.id, ads.headline, ads.description, ads.url FROM ads JOIN campaign_ads ON ads.id = campaign_ads.ad_id WHERE campaign_ads.campaign_id IN ('+advertiser_campaigns+') ORDER BY campaign_ads.campaign_id'
+        mysql_connection.query('SELECT advertiser_campaigns.bid, campaign_ads.campaign_id, ads.advertiser_id, ads.id, ads.headline, ads.description, ads.url FROM ads JOIN campaign_ads ON ads.id = campaign_ads.ad_id JOIN advertiser_campaigns ON campaign_ads.campaign_id = advertiser_campaigns.id WHERE campaign_ads.campaign_id IN ('+advertiser_campaigns+') ORDER BY campaign_ads.campaign_id'
          , (err, result, fields) => {
             if (err) {
                 console.log("Status 500. Details: " + err);
@@ -29,7 +29,9 @@ export class AdsController {
                 var registro = 0;
                 let resultL = result.length;
                 let resultLI = result.length;
+                let bid = result.map(k => k.bid);
                 var value = result.map(k =>k.campaign_id);
+                var advertiser_id = result.map(k =>k.advertiser_id);
                 var id = result.map(k =>k.id);
                 var headline = result.map(k =>k.headline);
                 var description = result.map(k =>k.description);
@@ -45,8 +47,8 @@ export class AdsController {
                         if(Number(value[i]) != Number(value[j])){
                             random =  Math.round(Math.random() * (j - i) + i)-1;
                             if(random<i) random=i;
-                            arreglo[registro]={ id: Number(id[random]), headline: headline[random],
-                                description: description[random], url: url[random]};
+                            arreglo[registro]={ id: Number(id[random]), advertiser_id: advertiser_id[random], advertiser_campaign_id: value[random], headline: headline[random],
+                                bid: bid[random], description: description[random], url: url[random]};
                             registro++;
                             i=j-1;
                             j=resultLI;
@@ -60,9 +62,10 @@ export class AdsController {
                     arreglo[registro]={ id: Number(id[random]), headline: headline[random],
                         description: description[random], url: url[random]};
                 }else if(Number(value[resultL-2]) != Number(value[resultL-1])){
-                    arreglo[registro]={ id: Number(id[resultL-1]), headline: headline[resultL-1],
-                        description: description[resultL-1], url: url[resultL-1]};
+                    arreglo[registro]={ id: Number(id[resultL-1]), advertiser_id: advertiser_id[resultL-1], advertiser_campaign_id: value[resultL-1], headline: headline[resultL-1],
+                        bid: bid[resultL-1], description: description[resultL-1], url: url[resultL-1]};
                 }
+                arreglo.sort((a,b) => b.bid - a.bid);
                 console.log(arreglo);
                 res.status(200).json({
                     results: arreglo

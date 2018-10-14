@@ -53,6 +53,7 @@ export class ExclusionsController {
 
                 var arreglo = [];
                 for(var i=0; i<ad_cam.length; i++){
+                    //advertiser_campaign_id
                     arreglo[i]={ id: Number(ad_cam[i])};
                 }
                 console.log(arreglo);

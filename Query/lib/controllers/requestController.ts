@@ -212,16 +212,42 @@ export class QueryController {
 
                             let adsPromiseResults = promise.data.results;
                             let rngQueryID = crypto.randomBytes(10).toString('hex')
+                            let ts = Math.floor(new Date().getTime() / 1000)
                             for (let value in adsPromiseResults){
                                 let impressionID = crypto.randomBytes(10).toString('hex')
-                                Object.assign(adsPromiseResults[value], {impression_id: impressionID, clickURL: clickURI+"?query_id="+rngQueryID+"&impression_id="+impressionID})
+                                Object.assign(adsPromiseResults[value], {
+                                    impression_id: impressionID, 
+                                    clickURL: clickURI+"?query_id="+rngQueryID+"&impression_id="+impressionID,
+                                    timestamp: ts,
+                                    publisher_id: global_publisher_id,
+                                    publisher_campaign_id: publisher_campaign,
+                                    category: category,
+                                    zip_code: zip_code,
+                                    position: parseInt(value) + 1
+                                })
                             }
 
-                            for (let i=0; i < ordered_bids.length; i++){
-                                console.log(i);
-                                Object.assign(adsPromiseResults[i], {bid: ordered_bids[i]})
-                            }
+                            //preparar JSON de impression para enviar a tracking
                             
+                            let impression_put_tracking_JSON = {};
+
+                            for (let value in adsPromiseResults){
+                                impression_put_tracking_JSON[value] = {
+                                    query_id: rngQueryID,
+                                    impression_id: adsPromiseResults[value].impression_id,
+                                    timestamp: adsPromiseResults[value].timestamp,
+                                    publisher_id: global_publisher_id,
+                                    publisher_campaign_id: publisher_campaign,
+                                    advertiser_id: adsPromiseResults[value].advertiser_id,
+                                    advertiser_campaign_id: adsPromiseResults[value].advertiser_campaign_id, 
+                                    category: category,
+                                    ad_id: adsPromiseResults[value].id,
+                                    zip_code: zip_code,
+                                    advertiser_price: adsPromiseResults[value].bid,
+                                    position: parseInt(value)+1,
+                                };
+                            }
+
                             console.log('Ads Promise Results');
                             console.log(adsPromiseResults);
                             console.log("\n");
@@ -245,6 +271,19 @@ export class QueryController {
                                 console.log('Pricing Promise Results');
                                 console.log(pricingPromiseResults);
                                 console.log('\n');
+
+                                for (let value in pricingPromiseResults) {
+                                    Object.assign(impression_put_tracking_JSON[value], {
+                                        publisher_price: pricingPromiseResults[value].price,
+                                    });
+                                    Object.assign(adsPromiseResults[value], {
+                                        publisher_price: pricingPromiseResults[value].price,
+                                    });
+                                }
+
+                                console.log("Tracking Payload Impression");
+                                console.log(impression_put_tracking_JSON);
+                                console.log("\n");
 
                                 let params = {
                                     TableName: "Tarea6",
@@ -282,12 +321,22 @@ export class QueryController {
                                 })
                                 */
 
+                                let query_put_tracking_JSON = {
+                                    query_id: rngQueryID,
+                                    publisher_campaign_id: publisher_campaign,
+                                    publisher_id: global_publisher_id,
+                                    categoryID: category,
+                                    zip_code: zip_code,
+                                    timestamp: ts,
+                                }
+
                                 res.status(200).json({
                                     header: {
                                         query_id: rngQueryID
                                     },
                                     status:200,
-                                    ads: adsPromiseResults
+                                    publisher_id: global_publisher_id,
+                                    ads: adsPromiseResults,
                                 })
 
                             }).catch((error) => {

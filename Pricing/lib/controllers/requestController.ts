@@ -51,6 +51,7 @@ export class PricingController {
                     arreglo[i]={ id: Number(ad_cam[i]) , price: (Number(ad_cam_b[i])* Number(value))};
                 }
                 
+                arreglo.sort((a,b) => b.price - a.price);
                 console.log(arreglo);
                 res.status(200).json({
                     results: arreglo
