@@ -143,7 +143,8 @@ export class QueryController {
 
                     this.targetingResults = targetingPromiseResults.map(a => a.id);
 
-                    let targetingAdIdResults = targetingPromiseResults.map(a => a.advertiser_id);
+                    //Es mejor obtenerlo del servicio Ads, ya que nos lo devuleve ordenado
+                    //let targetingAdvertiserIdResults = targetingPromiseResults.map(a => a.advertiser_id);
 
 
                     //inter entre resultados de exclusion y targeting
