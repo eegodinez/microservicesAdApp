@@ -25,9 +25,12 @@ export class TrackingController {
 
         firehoseClient.putRecord(fh_params).promise().then((promise) => {
             console.log(promise)
+            res.status(200).json({
+                'status': 200
+            })
         }).catch((err) => {
             console.log(err);
-            res.status(500).json(err)
+            res.status(500).json(err);
             return;
         });
     }
@@ -44,9 +47,12 @@ export class TrackingController {
 
         firehoseClient.putRecord(fh_params).promise().then((promise) => {
             console.log(promise)
+            res.status(200).json({
+                'status': 200
+            })
         }).catch((err) => {
             console.log(err);
-            res.status(500).json(err)
+            res.status(500).json(err);
             return;
         });
     }
@@ -62,10 +68,13 @@ export class TrackingController {
         };
 
         firehoseClient.putRecord(fh_params).promise().then((promise) => {
-            console.log(promise)
+            console.log(promise);
+            res.status(200).json({
+                'status': 200
+            })
         }).catch((err) => {
             console.log(err);
-            res.status(500).json(err)
+            res.status(500).json(err);
             return;
         });
     }

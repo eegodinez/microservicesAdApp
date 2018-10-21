@@ -4,6 +4,15 @@ import axios from 'axios';
 import * as crypto from 'crypto';
 import * as keys from './dynamokeys';
 
+var trackingClickURI: string;
+
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
+    let jsonURI = promise.data
+    trackingClickURI = jsonURI["trackingURIClick"];
+}).catch(error => {
+    console.log(error);
+})
+
 let docClient = new DynamoDB.DocumentClient( {
     region: "us-east-1",
     endpoint: "dynamodb.us-east-1.amazonaws.com",
@@ -64,7 +73,7 @@ export class ClickController {
             
             console.log(click_put_tracking_JSON);
 
-            axios.post('http://www.localhost:8087/tracking/click/',click_put_tracking_JSON).then((response) =>{
+            axios.post(trackingClickURI,click_put_tracking_JSON).then((response) =>{
                 console.log(response);
             }).catch((error) => {
                 console.log(error);

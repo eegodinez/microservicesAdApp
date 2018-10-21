@@ -15,7 +15,7 @@ let docClient = new DynamoDB.DocumentClient( {
 }); 
 
 
-axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise => {
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
     let jsonURI = promise.data
     matchingURI = jsonURI["matchingURI"];
     exclusionsURI = jsonURI["exclusionsURI"];
@@ -302,7 +302,7 @@ export class QueryController {
                                     query_id: rngQueryID,
                                     publisher_campaign_id: parseInt(publisher_campaign),
                                     publisher_id: parseInt(global_publisher_id),
-                                    categoryID: category,
+                                    category: category,
                                     zip_code: zip_code,
                                     timestamp: ts,
                                 }
@@ -310,8 +310,8 @@ export class QueryController {
                                 axios.post(trackingQueryURI,query_put_tracking_JSON).then((response) =>{
                                     console.log(response);
                                 }).catch((error) => {
-                                    console.log(error);
-                                    res.status(500).json(error)
+                                    //console.log(error);
+                                    //res.status(500).json(error)
                                     return;
                                 })
 
@@ -319,13 +319,12 @@ export class QueryController {
                                     axios.post(trackingImpressionURI,impression_put_tracking_JSON[value]).then((response) =>{
                                         console.log(response);
                                     }).catch((error) => {
-                                        console.log(error);
-                                        res.status(500).json(error)
+                                        //console.log(error);
+                                        //res.status(500).json(error)
                                         return;
                                     })
                                 }
                                 
-
                                 res.status(200).json({
                                     header: {
                                         query_id: rngQueryID
