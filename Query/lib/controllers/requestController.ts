@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import axios from 'axios';
 import * as crypto from 'crypto';
 import DynamoDB = require('aws-sdk/clients/dynamodb');
-import Firehose = require('aws-sdk/clients/firehose');
 import * as dynamo from './dynamokeys';
 
-var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI, clickURI: string;
+var matchingURI, exclusionsURI, targetingURI, rankingURI, adsURI, pricingURI, clickURI, trackingQueryURI, trackingImpressionURI: string;
 
 let docClient = new DynamoDB.DocumentClient( {
     region: "us-east-1",
@@ -15,12 +14,6 @@ let docClient = new DynamoDB.DocumentClient( {
     convertEmptyValues: true,
 }); 
 
-let firehoseClient = new Firehose({
-    region: "us-east-1",
-    endpoint: "firehose.us-east-1.amazonaws.com",
-    accessKeyId: dynamo.default.access,
-    secretAccessKey: dynamo.default.secret,
-})
 
 axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise => {
     let jsonURI = promise.data
@@ -31,6 +24,8 @@ axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise =
     adsURI = jsonURI["adsURI"];
     pricingURI = jsonURI["pricingURI"];
     clickURI = jsonURI["clickURI"];
+    trackingQueryURI = jsonURI["trackingURIQuery"];
+    trackingImpressionURI = jsonURI["trackingURIImpression"];
 }).catch(error => {
     console.log(error);
 })
@@ -43,7 +38,7 @@ export class QueryController {
     public targetingResults;
 
     public getCampaigns = (req: Request, res: Response) => {
-        let category = req.query.category;
+        let category = parseInt(req.query.category);
         let publisher_campaign = req.query.publisher_campaign;
         let zip_code = req.query.zip_code;
         let maximum = req.query.maximum;
@@ -212,18 +207,19 @@ export class QueryController {
 
                             let adsPromiseResults = promise.data.results;
                             let rngQueryID = crypto.randomBytes(10).toString('hex')
-                            let ts = Math.floor(new Date().getTime() / 1000)
+                            let ts = this.js_yyyy_mm_dd_hh_mm_ss();
                             for (let value in adsPromiseResults){
                                 let impressionID = crypto.randomBytes(10).toString('hex')
                                 Object.assign(adsPromiseResults[value], {
                                     impression_id: impressionID, 
                                     clickURL: clickURI+"?query_id="+rngQueryID+"&impression_id="+impressionID,
                                     timestamp: ts,
-                                    publisher_id: global_publisher_id,
-                                    publisher_campaign_id: publisher_campaign,
+                                    publisher_id: parseInt(global_publisher_id),
+                                    publisher_campaign_id: parseInt(publisher_campaign),
                                     category: category,
                                     zip_code: zip_code,
-                                    position: parseInt(value) + 1
+                                    position: parseInt(value) + 1,
+                                    query_id: rngQueryID,
                                 })
                             }
 
@@ -236,12 +232,12 @@ export class QueryController {
                                     query_id: rngQueryID,
                                     impression_id: adsPromiseResults[value].impression_id,
                                     timestamp: adsPromiseResults[value].timestamp,
-                                    publisher_id: global_publisher_id,
-                                    publisher_campaign_id: publisher_campaign,
-                                    advertiser_id: adsPromiseResults[value].advertiser_id,
-                                    advertiser_campaign_id: adsPromiseResults[value].advertiser_campaign_id, 
+                                    publisher_id: parseInt(global_publisher_id),
+                                    publisher_campaign_id: parseInt(publisher_campaign),
+                                    advertiser_id: parseInt(adsPromiseResults[value].advertiser_id),
+                                    advertiser_campaign_id: parseInt(adsPromiseResults[value].advertiser_campaign_id), 
                                     category: category,
-                                    ad_id: adsPromiseResults[value].id,
+                                    ad_id: parseInt(adsPromiseResults[value].id),
                                     zip_code: zip_code,
                                     advertiser_price: adsPromiseResults[value].bid,
                                     position: parseInt(value)+1,
@@ -274,10 +270,10 @@ export class QueryController {
 
                                 for (let value in pricingPromiseResults) {
                                     Object.assign(impression_put_tracking_JSON[value], {
-                                        publisher_price: pricingPromiseResults[value].price,
+                                        publisher_price: parseFloat(pricingPromiseResults[value].price),
                                     });
                                     Object.assign(adsPromiseResults[value], {
-                                        publisher_price: pricingPromiseResults[value].price,
+                                        publisher_price: parseFloat(pricingPromiseResults[value].price),
                                     });
                                 }
 
@@ -302,33 +298,33 @@ export class QueryController {
                                     return;
                                 })
 
-
-                                /*
-                                let fh_params = {
-                                    DeliveryStreamName: 'QueryStream',
-                                    Record: {
-                                        Data: rngQueryID,
-                                        //ads: adsPromiseResults,
-                                    }
-                                  };
-
-                                firehoseClient.putRecord(fh_params).promise().then((promise) => {
-                                    console.log(promise)
-                                }).catch((err) => {
-                                    console.log(err);
-                                    res.status(500).json(err)
-                                    return;
-                                })
-                                */
-
                                 let query_put_tracking_JSON = {
                                     query_id: rngQueryID,
-                                    publisher_campaign_id: publisher_campaign,
-                                    publisher_id: global_publisher_id,
+                                    publisher_campaign_id: parseInt(publisher_campaign),
+                                    publisher_id: parseInt(global_publisher_id),
                                     categoryID: category,
                                     zip_code: zip_code,
                                     timestamp: ts,
                                 }
+
+                                axios.post(trackingQueryURI,query_put_tracking_JSON).then((response) =>{
+                                    console.log(response);
+                                }).catch((error) => {
+                                    console.log(error);
+                                    res.status(500).json(error)
+                                    return;
+                                })
+
+                                for (let value in impression_put_tracking_JSON){
+                                    axios.post(trackingImpressionURI,impression_put_tracking_JSON[value]).then((response) =>{
+                                        console.log(response);
+                                    }).catch((error) => {
+                                        console.log(error);
+                                        res.status(500).json(error)
+                                        return;
+                                    })
+                                }
+                                
 
                                 res.status(200).json({
                                     header: {
@@ -466,6 +462,17 @@ export class QueryController {
         }
 
     }
+
+    public js_yyyy_mm_dd_hh_mm_ss = () => {
+        let now = new Date();
+        let year = "" + now.getFullYear();
+        let month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+        let day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+        let hour = "" + now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+        let minute = "" + now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+        let second = "" + now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+        return year + "-" + month + "-" + day + " " + hour + ":" + minute + ":" + second;
+      }
 
 
 

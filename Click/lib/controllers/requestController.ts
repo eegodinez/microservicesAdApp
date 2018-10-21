@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import DynamoDB = require('aws-sdk/clients/dynamodb');
-import Firehose = require('aws-sdk/clients/firehose');
+import axios from 'axios';
+import * as crypto from 'crypto';
 import * as keys from './dynamokeys';
 
 let docClient = new DynamoDB.DocumentClient( {
@@ -44,7 +45,30 @@ export class ClickController {
 
         docClient.get(params).promise().then(promise => {
             let ad = promise.Item.ads.find(adresults => adresults.impression_id === impression_id)
-            console.log(ad.url);
+            let click_put_tracking_JSON = {
+                query_id: ad.query_id,
+                impression_id: ad.impression_id,
+                click_id: crypto.randomBytes(10).toString('hex'),
+                timestamp: ad.timestamp,
+                publisher_id: ad.publisher_id,
+                publisher_campaign_id: ad.publisher_campaign_id,
+                advertiser_id: ad.advertiser_id,
+                advertiser_campaign_id: ad.advertiser_campaign_id,
+                category: ad.category,
+                ad_id: ad.id,
+                zip_code: ad.zip_code,
+                advertiser_price: ad.bid,
+                publisher_price: ad.publisher_price,
+                position: ad.position,
+            }
+            
+            console.log(click_put_tracking_JSON);
+
+            axios.post('http://www.localhost:8087/tracking/click/',click_put_tracking_JSON).then((response) =>{
+                console.log(response);
+            }).catch((error) => {
+                console.log(error);
+            })
             res.redirect(302, ad.url);
         }).catch(err => {
             console.log(err)
