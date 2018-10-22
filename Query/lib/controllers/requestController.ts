@@ -206,6 +206,7 @@ export class QueryController {
                             }
 
                             let adsPromiseResults = promise.data.results;
+
                             let rngQueryID = crypto.randomBytes(10).toString('hex')
                             let ts = this.js_yyyy_mm_dd_hh_mm_ss();
                             for (let value in adsPromiseResults){
@@ -213,6 +214,12 @@ export class QueryController {
                                 Object.assign(adsPromiseResults[value], {
                                     impression_id: impressionID, 
                                     clickURL: clickURI+"?query_id="+rngQueryID+"&impression_id="+impressionID,
+                                })
+                            }
+
+                            let newAdsPromiseResults = JSON.parse(JSON.stringify(adsPromiseResults));
+                            for (let value in newAdsPromiseResults){
+                                Object.assign(newAdsPromiseResults[value], {
                                     timestamp: ts,
                                     publisher_id: parseInt(global_publisher_id),
                                     publisher_campaign_id: parseInt(publisher_campaign),
@@ -220,28 +227,35 @@ export class QueryController {
                                     zip_code: zip_code,
                                     position: parseInt(value) + 1,
                                     query_id: rngQueryID,
-                                })
+                                });
                             }
+
 
                             //preparar JSON de impression para enviar a tracking
                             
                             let impression_put_tracking_JSON = {};
 
-                            for (let value in adsPromiseResults){
+                            for (let value in newAdsPromiseResults){
                                 impression_put_tracking_JSON[value] = {
                                     query_id: rngQueryID,
-                                    impression_id: adsPromiseResults[value].impression_id,
-                                    timestamp: adsPromiseResults[value].timestamp,
+                                    impression_id: newAdsPromiseResults[value].impression_id,
+                                    timestamp: newAdsPromiseResults[value].timestamp,
                                     publisher_id: parseInt(global_publisher_id),
                                     publisher_campaign_id: parseInt(publisher_campaign),
-                                    advertiser_id: parseInt(adsPromiseResults[value].advertiser_id),
-                                    advertiser_campaign_id: parseInt(adsPromiseResults[value].advertiser_campaign_id), 
+                                    advertiser_id: parseInt(newAdsPromiseResults[value].advertiser_id),
+                                    advertiser_campaign_id: parseInt(newAdsPromiseResults[value].advertiser_campaign_id), 
                                     category: category,
-                                    ad_id: parseInt(adsPromiseResults[value].id),
+                                    ad_id: parseInt(newAdsPromiseResults[value].id),
                                     zip_code: zip_code,
-                                    advertiser_price: adsPromiseResults[value].bid,
+                                    advertiser_price: newAdsPromiseResults[value].bid,
                                     position: parseInt(value)+1,
                                 };
+                            }
+
+                            for (let value in adsPromiseResults) {
+                                delete adsPromiseResults[value]["advertiser_id"];
+                                delete adsPromiseResults[value]["advertiser_campaign_id"];
+                                delete adsPromiseResults[value]["bid"];
                             }
 
                             console.log('Ads Promise Results');
@@ -272,7 +286,7 @@ export class QueryController {
                                     Object.assign(impression_put_tracking_JSON[value], {
                                         publisher_price: parseFloat(pricingPromiseResults[value].price),
                                     });
-                                    Object.assign(adsPromiseResults[value], {
+                                    Object.assign(newAdsPromiseResults[value], {
                                         publisher_price: parseFloat(pricingPromiseResults[value].price),
                                     });
                                 }
@@ -285,7 +299,7 @@ export class QueryController {
                                     TableName: "Tarea6",
                                     Item: {
                                         QueryID: rngQueryID,
-                                        ads: adsPromiseResults,
+                                        ads: newAdsPromiseResults,
                                         TTL: Math.floor(new Date().getTime() / 1000) + 86400
                                     }
                                 }
@@ -315,6 +329,9 @@ export class QueryController {
                                     return;
                                 })
 
+                                console.log("Impression click URI");
+                                console.log(trackingImpressionURI);
+                                console.log("\n")
                                 for (let value in impression_put_tracking_JSON){
                                     axios.post(trackingImpressionURI,impression_put_tracking_JSON[value]).then((response) =>{
                                         console.log(response);
@@ -329,8 +346,6 @@ export class QueryController {
                                     header: {
                                         query_id: rngQueryID
                                     },
-                                    status:200,
-                                    publisher_id: global_publisher_id,
                                     ads: adsPromiseResults,
                                 })
 

@@ -39,3 +39,8 @@ cd ../Targeting/
 sudo docker build -t targeting_microservice .
 sudo docker tag targeting_microservice:latest 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:targeting
 sudo docker push 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:targeting
+
+cd ../Tracking/
+sudo docker build -t tracking_microservice .
+sudo docker tag tracking_microservice:latest 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:tracking
+sudo docker push 449449804646.dkr.ecr.us-east-1.amazonaws.com/microservices:tracking

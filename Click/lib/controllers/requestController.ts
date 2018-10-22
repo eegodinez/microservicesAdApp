@@ -73,6 +73,9 @@ export class ClickController {
             
             console.log(click_put_tracking_JSON);
 
+            console.log("Tracking click URI");
+            console.log(trackingClickURI);
+            console.log("\n")
             axios.post(trackingClickURI,click_put_tracking_JSON).then((response) =>{
                 console.log(response);
             }).catch((error) => {
