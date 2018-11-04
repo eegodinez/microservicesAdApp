@@ -63,7 +63,7 @@ export class TrackingController {
         let fh_params = {
             DeliveryStreamName: 'ClickStream',
             Record: {
-                Data: JSON.stringify(req.body),
+                Data: JSON.stringify(req.body)+"\n",
             }
         };
 
