@@ -15,7 +15,7 @@ let docClient = new DynamoDB.DocumentClient( {
 }); 
 
 
-axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise => {
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
     let jsonURI = promise.data
     matchingURI = jsonURI["matchingURI"];
     exclusionsURI = jsonURI["exclusionsURI"];

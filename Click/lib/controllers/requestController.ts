@@ -6,7 +6,7 @@ import * as keys from './dynamokeys';
 
 var trackingClickURI: string;
 
-axios.get("https://s3.amazonaws.com/tarea5bucket/URI_Local.json").then(promise => {
+axios.get("https://s3.amazonaws.com/tarea5bucket/URI.json").then(promise => {
     let jsonURI = promise.data
     trackingClickURI = jsonURI["trackingURIClick"];
 }).catch(error => {
